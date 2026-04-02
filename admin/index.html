@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel admina</title>
+</head>
+<body style="font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px;background:#f7f7f7;">
+  <h1>Panel admina</h1>
+
+  <div id="authBox" style="background:#fff;padding:20px;border-radius:16px;margin-bottom:20px;">
+    <h2>Logowanie</h2>
+    <input id="email" type="email" placeholder="E-mail" style="width:100%;padding:12px;margin-bottom:10px;" />
+    <input id="password" type="password" placeholder="Hasło" style="width:100%;padding:12px;margin-bottom:10px;" />
+    <button id="loginBtn" style="padding:12px 20px;">Zaloguj</button>
+    <button id="logoutBtn" style="padding:12px 20px;margin-left:10px;">Wyloguj</button>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <div style="background:#fff;padding:20px;border-radius:16px;margin-bottom:20px;">
+      <h2>Dodaj produkt</h2>
+      <input id="title" placeholder="Nazwa palety" style="width:100%;padding:12px;margin-bottom:10px;" />
+      <input id="price" type="number" placeholder="Cena" style="width:100%;padding:12px;margin-bottom:10px;" />
+      <input id="old_price" type="number" placeholder="Stara cena" style="width:100%;padding:12px;margin-bottom:10px;" />
+      <textarea id="description" placeholder="Opis" style="width:100%;padding:12px;margin-bottom:10px;height:120px;"></textarea>
+      <input id="image" type="file" accept="image/*" style="margin-bottom:10px;" />
+      <br>
+      <label><input id="is_visible" type="checkbox" checked> Widoczny</label>
+      <label style="margin-left:15px;"><input id="is_sold" type="checkbox"> Sprzedane</label>
+      <br><br>
+      <button id="addBtn" style="padding:12px 20px;">Dodaj produkt</button>
+    </div>
+
+    <div style="background:#fff;padding:20px;border-radius:16px;">
+      <h2>Lista produktów</h2>
+      <div id="productList"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+    const supabaseUrl = 'TU_WKLEJ_SUPABASE_URL'
+    const supabaseKey = 'TU_WKLEJ_ANON_KEY'
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    const authBox = document.getElementById('authBox')
+    const adminPanel = document.getElementById('adminPanel')
+    const productList = document.getElementById('productList')
+
+    async function checkUser() {
+      const { data } = await supabase.auth.getUser()
+      if (data.user) {
+        adminPanel.style.display = 'block'
+      } else {
+        adminPanel.style.display = 'none'
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) return alert('Błąd logowania: ' + error.message)
+
+      alert('Zalogowano')
+      checkUser()
+      loadProducts()
+    })
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      alert('Wylogowano')
+      checkUser()
+    })
+
+    async function uploadImage(file) {
+      if (!file) return null
+
+      const fileName = `${Date.now()}-${file.name}`
+
+      const { error } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file)
+
+      if (error) {
+        alert('Błąd uploadu zdjęcia: ' + error.message)
+        return null
+      }
+
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName)
+
+      return data.publicUrl
+    }
+
+    document.getElementById('addBtn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value
+      const price = Number(document.getElementById('price').value)
+      const old_price_value = document.getElementById('old_price').value
+      const old_price = old_price_value ? Number(old_price_value) : null
+      const description = document.getElementById('description').value
+      const is_visible = document.getElementById('is_visible').checked
+      const is_sold = document.getElementById('is_sold').checked
+      const file = document.getElementById('image').files[0]
+
+      if (!title || !price) {
+        alert('Podaj nazwę i cenę')
+        return
+      }
+
+      const image_url = await uploadImage(file)
+
+      const { error } = await supabase.from('products').insert([{
+        title,
+        price,
+        old_price,
+        description,
+        image_url,
+        is_visible,
+        is_sold
+      }])
+
+      if (error) {
+        alert('Błąd dodawania: ' + error.message)
+        return
+      }
+
+      alert('Produkt dodany')
+      loadProducts()
+    })
+
+    async function deleteProduct(id) {
+      const { error } = await supabase.from('products').delete().eq('id', id)
+      if (error) return alert('Błąd usuwania: ' + error.message)
+      loadProducts()
+    }
+
+    async function toggleSold(id, currentValue) {
+      const { error } = await supabase
+        .from('products')
+        .update({ is_sold: !currentValue })
+        .eq('id', id)
+
+      if (error) return alert('Błąd aktualizacji: ' + error.message)
+      loadProducts()
+    }
+
+    async function toggleVisible(id, currentValue) {
+      const { error } = await supabase
+        .from('products')
+        .update({ is_visible: !currentValue })
+        .eq('id', id)
+
+      if (error) return alert('Błąd aktualizacji: ' + error.message)
+      loadProducts()
+    }
+
+    async function loadProducts() {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        productList.innerHTML = '<p>Błąd ładowania produktów</p>'
+        return
+      }
+
+      productList.innerHTML = data.map(item => `
+        <div style="border:1px solid #ddd;padding:16px;border-radius:12px;margin-bottom:12px;background:#fafafa;">
+          <strong>${item.title}</strong><br>
+          Cena: ${item.price} zł<br>
+          ${item.old_price ? `Stara cena: ${item.old_price} zł<br>` : ''}
+          Widoczny: ${item.is_visible ? 'Tak' : 'Nie'}<br>
+          Sprzedane: ${item.is_sold ? 'Tak' : 'Nie'}<br><br>
+          <button onclick="window.deleteProduct('${item.id}')">Usuń</button>
+          <button onclick="window.toggleSold('${item.id}', ${item.is_sold})">Sprzedane / aktywne</button>
+          <button onclick="window.toggleVisible('${item.id}', ${item.is_visible})">Pokaż / ukryj</button>
+        </div>
+      `).join('')
+    }
+
+    window.deleteProduct = deleteProduct
+    window.toggleSold = toggleSold
+    window.toggleVisible = toggleVisible
+
+    checkUser()
+    loadProducts()
+  </script>
+</body>
+</html>
