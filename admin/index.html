@@ -3,37 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel admina</title>
+  <title>Admin - Viking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body style="font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px;background:#f7f7f7;">
-  <h1>Panel admina</h1>
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Panel admina Viking</h1>
 
-  <div id="authBox" style="background:#fff;padding:20px;border-radius:16px;margin-bottom:20px;">
-    <h2>Logowanie</h2>
-    <input id="email" type="email" placeholder="E-mail" style="width:100%;padding:12px;margin-bottom:10px;" />
-    <input id="password" type="password" placeholder="Hasło" style="width:100%;padding:12px;margin-bottom:10px;" />
-    <button id="loginBtn" style="padding:12px 20px;">Zaloguj</button>
-    <button id="logoutBtn" style="padding:12px 20px;margin-left:10px;">Wyloguj</button>
-  </div>
-
-  <div id="adminPanel" style="display:none;">
-    <div style="background:#fff;padding:20px;border-radius:16px;margin-bottom:20px;">
-      <h2>Dodaj produkt</h2>
-      <input id="title" placeholder="Nazwa palety" style="width:100%;padding:12px;margin-bottom:10px;" />
-      <input id="price" type="number" placeholder="Cena" style="width:100%;padding:12px;margin-bottom:10px;" />
-      <input id="old_price" type="number" placeholder="Stara cena" style="width:100%;padding:12px;margin-bottom:10px;" />
-      <textarea id="description" placeholder="Opis" style="width:100%;padding:12px;margin-bottom:10px;height:120px;"></textarea>
-      <input id="image" type="file" accept="image/*" style="margin-bottom:10px;" />
-      <br>
-      <label><input id="is_visible" type="checkbox" checked> Widoczny</label>
-      <label style="margin-left:15px;"><input id="is_sold" type="checkbox"> Sprzedane</label>
-      <br><br>
-      <button id="addBtn" style="padding:12px 20px;">Dodaj produkt</button>
+    <div class="bg-white rounded-2xl shadow p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-4">Logowanie</h2>
+      <div class="grid gap-4 md:grid-cols-3">
+        <input id="email" type="email" placeholder="Email" class="border rounded-xl px-4 py-3">
+        <input id="password" type="password" placeholder="Hasło" class="border rounded-xl px-4 py-3">
+        <div class="flex gap-3">
+          <button id="loginBtn" class="bg-black text-white px-6 py-3 rounded-xl">Zaloguj</button>
+          <button id="logoutBtn" class="bg-gray-300 px-6 py-3 rounded-xl">Wyloguj</button>
+        </div>
+      </div>
     </div>
 
-    <div style="background:#fff;padding:20px;border-radius:16px;">
-      <h2>Lista produktów</h2>
-      <div id="productList"></div>
+    <div id="adminPanel" class="hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <div class="bg-white rounded-2xl shadow p-6">
+          <h2 class="text-2xl font-bold mb-4">Dodaj kategorię do "Dostępne palety"</h2>
+          <div class="space-y-3">
+            <input id="cat_title" placeholder="Nazwa kategorii" class="w-full border rounded-xl px-4 py-3">
+            <textarea id="cat_description" placeholder="Opis kategorii" class="w-full border rounded-xl px-4 py-3 h-24"></textarea>
+            <input id="cat_icon" placeholder="Ikona FontAwesome, np. fa-couch" class="w-full border rounded-xl px-4 py-3">
+            <select id="cat_color" class="w-full border rounded-xl px-4 py-3">
+              <option value="green">Zielony</option>
+              <option value="blue">Niebieski</option>
+              <option value="orange">Pomarańczowy</option>
+            </select>
+            <input id="cat_button_text" placeholder="Tekst przycisku" class="w-full border rounded-xl px-4 py-3" value="Zobacz palety">
+            <input id="cat_button_link" placeholder="Link przycisku" class="w-full border rounded-xl px-4 py-3" value="#lista-palet">
+            <input id="cat_sort_order" type="number" placeholder="Kolejność" class="w-full border rounded-xl px-4 py-3" value="0">
+            <label class="flex items-center gap-2">
+              <input id="cat_visible" type="checkbox" checked>
+              <span>Widoczna</span>
+            </label>
+            <button id="addCategoryBtn" class="bg-green-600 text-white px-6 py-3 rounded-xl">Dodaj kategorię</button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow p-6">
+          <h2 class="text-2xl font-bold mb-4">Dodaj paletę do "Lista palet"</h2>
+          <div class="space-y-3">
+            <select id="pal_category_slug" class="w-full border rounded-xl px-4 py-3">
+              <option value="dom">Dom i Ogród</option>
+              <option value="biuro">Biuro / Drukarki / Komputery</option>
+            </select>
+            <input id="pal_badge_main" placeholder="Badge główny, np. PALETA 16" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_badge_secondary" placeholder="Badge drugi, np. KAT III" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_badge_category" placeholder="Badge kategorii" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_badge_stock" placeholder="Badge dostępności, np. 4 palety dostępne" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_title" placeholder="Tytuł palety" class="w-full border rounded-xl px-4 py-3">
+            <textarea id="pal_description" placeholder="Opis palety" class="w-full border rounded-xl px-4 py-3 h-24"></textarea>
+            <input id="pal_value_text" placeholder="Wartość, np. 12 500 zł" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_price_text" placeholder="Cena, np. 1 350 zł" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_share_text" placeholder="Udział wartości, np. 11%" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_quantity_text" placeholder="Ilość szt., np. 10 / paleta" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_feature_1" placeholder="Cecha 1" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_feature_2" placeholder="Cecha 2" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_feature_3" placeholder="Cecha 3" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_ods_link" placeholder="Link do .ods" class="w-full border rounded-xl px-4 py-3">
+            <input id="pal_order_link" placeholder="Link zamów teraz" class="w-full border rounded-xl px-4 py-3" value="#kontakt">
+            <textarea id="pal_details_text" placeholder="Szczegóły rozwijane - każda linia będzie osobnym punktem" class="w-full border rounded-xl px-4 py-3 h-28"></textarea>
+            <input id="pal_sort_order" type="number" placeholder="Kolejność" class="w-full border rounded-xl px-4 py-3" value="0">
+            <label class="flex items-center gap-2">
+              <input id="pal_visible" type="checkbox" checked>
+              <span>Widoczna</span>
+            </label>
+            <button id="addPaletteBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl">Dodaj paletę</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <div class="bg-white rounded-2xl shadow p-6">
+          <h2 class="text-2xl font-bold mb-4">Kategorie</h2>
+          <div id="categoriesList" class="space-y-4"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow p-6">
+          <h2 class="text-2xl font-bold mb-4">Palety</h2>
+          <div id="palettesList" class="space-y-4"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -44,151 +101,163 @@
     const supabaseKey = 'sb_publishable_wSHUPkFaJo2v5QFAHNgabA_kIO4ti3A'
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    const authBox = document.getElementById('authBox')
     const adminPanel = document.getElementById('adminPanel')
-    const productList = document.getElementById('productList')
 
     async function checkUser() {
       const { data } = await supabase.auth.getUser()
       if (data.user) {
-        adminPanel.style.display = 'block'
+        adminPanel.classList.remove('hidden')
+        loadCategories()
+        loadPalettes()
       } else {
-        adminPanel.style.display = 'none'
+        adminPanel.classList.add('hidden')
       }
     }
 
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('email').value
       const password = document.getElementById('password').value
-
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) return alert('Błąd logowania: ' + error.message)
-
-      alert('Zalogowano')
+      if (error) return alert(error.message)
       checkUser()
-      loadProducts()
     })
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut()
-      alert('Wylogowano')
       checkUser()
     })
 
-    async function uploadImage(file) {
-      if (!file) return null
-
-      const fileName = `${Date.now()}-${file.name}`
-
-      const { error } = await supabase.storage
-        .from('product-images')
-        .upload(fileName, file)
-
-      if (error) {
-        alert('Błąd uploadu zdjęcia: ' + error.message)
-        return null
+    document.getElementById('addCategoryBtn').addEventListener('click', async () => {
+      const payload = {
+        title: document.getElementById('cat_title').value,
+        description: document.getElementById('cat_description').value,
+        icon: document.getElementById('cat_icon').value,
+        color_theme: document.getElementById('cat_color').value,
+        button_text: document.getElementById('cat_button_text').value,
+        button_link: document.getElementById('cat_button_link').value,
+        sort_order: Number(document.getElementById('cat_sort_order').value || 0),
+        is_visible: document.getElementById('cat_visible').checked
       }
 
-      const { data } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(fileName)
-
-      return data.publicUrl
-    }
-
-    document.getElementById('addBtn').addEventListener('click', async () => {
-      const title = document.getElementById('title').value
-      const price = Number(document.getElementById('price').value)
-      const old_price_value = document.getElementById('old_price').value
-      const old_price = old_price_value ? Number(old_price_value) : null
-      const description = document.getElementById('description').value
-      const is_visible = document.getElementById('is_visible').checked
-      const is_sold = document.getElementById('is_sold').checked
-      const file = document.getElementById('image').files[0]
-
-      if (!title || !price) {
-        alert('Podaj nazwę i cenę')
-        return
+      if (!payload.title || !payload.description || !payload.icon) {
+        return alert('Uzupełnij nazwę, opis i ikonę')
       }
 
-      const image_url = await uploadImage(file)
+      const { error } = await supabase.from('palette_categories').insert([payload])
+      if (error) return alert(error.message)
 
-      const { error } = await supabase.from('products').insert([{
-        title,
-        price,
-        old_price,
-        description,
-        image_url,
-        is_visible,
-        is_sold
-      }])
-
-      if (error) {
-        alert('Błąd dodawania: ' + error.message)
-        return
-      }
-
-      alert('Produkt dodany')
-      loadProducts()
+      alert('Kategoria dodana')
+      loadCategories()
     })
 
-    async function deleteProduct(id) {
-      const { error } = await supabase.from('products').delete().eq('id', id)
-      if (error) return alert('Błąd usuwania: ' + error.message)
-      loadProducts()
-    }
-
-    async function toggleSold(id, currentValue) {
-      const { error } = await supabase
-        .from('products')
-        .update({ is_sold: !currentValue })
-        .eq('id', id)
-
-      if (error) return alert('Błąd aktualizacji: ' + error.message)
-      loadProducts()
-    }
-
-    async function toggleVisible(id, currentValue) {
-      const { error } = await supabase
-        .from('products')
-        .update({ is_visible: !currentValue })
-        .eq('id', id)
-
-      if (error) return alert('Błąd aktualizacji: ' + error.message)
-      loadProducts()
-    }
-
-    async function loadProducts() {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        productList.innerHTML = '<p>Błąd ładowania produktów</p>'
-        return
+    document.getElementById('addPaletteBtn').addEventListener('click', async () => {
+      const payload = {
+        category_slug: document.getElementById('pal_category_slug').value,
+        badge_main: document.getElementById('pal_badge_main').value,
+        badge_secondary: document.getElementById('pal_badge_secondary').value,
+        badge_category: document.getElementById('pal_badge_category').value,
+        badge_stock: document.getElementById('pal_badge_stock').value,
+        title: document.getElementById('pal_title').value,
+        description: document.getElementById('pal_description').value,
+        value_text: document.getElementById('pal_value_text').value,
+        price_text: document.getElementById('pal_price_text').value,
+        share_text: document.getElementById('pal_share_text').value,
+        quantity_text: document.getElementById('pal_quantity_text').value,
+        feature_1: document.getElementById('pal_feature_1').value,
+        feature_2: document.getElementById('pal_feature_2').value,
+        feature_3: document.getElementById('pal_feature_3').value,
+        ods_link: document.getElementById('pal_ods_link').value,
+        order_link: document.getElementById('pal_order_link').value,
+        details_text: document.getElementById('pal_details_text').value,
+        sort_order: Number(document.getElementById('pal_sort_order').value || 0),
+        is_visible: document.getElementById('pal_visible').checked
       }
 
-      productList.innerHTML = data.map(item => `
-        <div style="border:1px solid #ddd;padding:16px;border-radius:12px;margin-bottom:12px;background:#fafafa;">
-          <strong>${item.title}</strong><br>
-          Cena: ${item.price} zł<br>
-          ${item.old_price ? `Stara cena: ${item.old_price} zł<br>` : ''}
-          Widoczny: ${item.is_visible ? 'Tak' : 'Nie'}<br>
-          Sprzedane: ${item.is_sold ? 'Tak' : 'Nie'}<br><br>
-          <button onclick="window.deleteProduct('${item.id}')">Usuń</button>
-          <button onclick="window.toggleSold('${item.id}', ${item.is_sold})">Sprzedane / aktywne</button>
-          <button onclick="window.toggleVisible('${item.id}', ${item.is_visible})">Pokaż / ukryj</button>
+      if (
+        !payload.badge_main || !payload.badge_secondary || !payload.badge_category ||
+        !payload.title || !payload.description || !payload.value_text ||
+        !payload.price_text || !payload.share_text || !payload.quantity_text ||
+        !payload.feature_1 || !payload.feature_2 || !payload.feature_3
+      ) {
+        return alert('Uzupełnij wszystkie wymagane pola palety')
+      }
+
+      const { error } = await supabase.from('palettes').insert([payload])
+      if (error) return alert(error.message)
+
+      alert('Paleta dodana')
+      loadPalettes()
+    })
+
+    async function loadCategories() {
+      const { data, error } = await supabase
+        .from('palette_categories')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false })
+
+      if (error) return
+
+      document.getElementById('categoriesList').innerHTML = data.map(item => `
+        <div class="border rounded-xl p-4 bg-gray-50">
+          <div class="font-bold text-lg">${item.title}</div>
+          <div class="text-sm text-gray-600 mb-2">${item.description}</div>
+          <div class="text-sm mb-3">ikona: ${item.icon} | kolor: ${item.color_theme} | widoczna: ${item.is_visible ? 'tak' : 'nie'}</div>
+          <div class="flex gap-2">
+            <button onclick="toggleCategory('${item.id}', ${item.is_visible})" class="px-4 py-2 rounded-lg bg-yellow-500 text-white">
+              ${item.is_visible ? 'Ukryj' : 'Pokaż'}
+            </button>
+            <button onclick="deleteCategory('${item.id}')" class="px-4 py-2 rounded-lg bg-red-600 text-white">Usuń</button>
+          </div>
         </div>
       `).join('')
     }
 
-    window.deleteProduct = deleteProduct
-    window.toggleSold = toggleSold
-    window.toggleVisible = toggleVisible
+    async function loadPalettes() {
+      const { data, error } = await supabase
+        .from('palettes')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false })
+
+      if (error) return
+
+      document.getElementById('palettesList').innerHTML = data.map(item => `
+        <div class="border rounded-xl p-4 bg-gray-50">
+          <div class="font-bold text-lg">${item.title}</div>
+          <div class="text-sm text-gray-600 mb-2">${item.description}</div>
+          <div class="text-sm mb-3">kategoria: ${item.category_slug} | widoczna: ${item.is_visible ? 'tak' : 'nie'}</div>
+          <div class="flex gap-2">
+            <button onclick="togglePaletteVisible('${item.id}', ${item.is_visible})" class="px-4 py-2 rounded-lg bg-yellow-500 text-white">
+              ${item.is_visible ? 'Ukryj' : 'Pokaż'}
+            </button>
+            <button onclick="deletePalette('${item.id}')" class="px-4 py-2 rounded-lg bg-red-600 text-white">Usuń</button>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    window.toggleCategory = async (id, current) => {
+      await supabase.from('palette_categories').update({ is_visible: !current }).eq('id', id)
+      loadCategories()
+    }
+
+    window.deleteCategory = async (id) => {
+      await supabase.from('palette_categories').delete().eq('id', id)
+      loadCategories()
+    }
+
+    window.togglePaletteVisible = async (id, current) => {
+      await supabase.from('palettes').update({ is_visible: !current }).eq('id', id)
+      loadPalettes()
+    }
+
+    window.deletePalette = async (id) => {
+      await supabase.from('palettes').delete().eq('id', id)
+      loadPalettes()
+    }
 
     checkUser()
-    loadProducts()
   </script>
 </body>
 </html>
